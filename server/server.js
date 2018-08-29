@@ -42,7 +42,7 @@ app.get('/todos/:id', (req, res) => {
     //valid id using isValid
         //stop and return 404 -send empty body
     if(!ObjectID.isValid(id)){
-        res.status(400).send('invalid ID');
+        res.status(400).send();
     }
     //findById
         //success
