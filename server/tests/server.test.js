@@ -33,7 +33,7 @@ describe('POST /todos', () => {
             })
             .expect(200)
             .expect((res) => {
-                expect(res.body.text).toBe(text);
+                expect(res.body.result.text).toBe(text);
             })
             .end((err, res) => {
                 if(err){
@@ -72,19 +72,19 @@ describe('POST /todos', () => {
     })
 });
 
-describe('Get /todos', () => {
+describe('LIST /todos', () => {
     it('Get all the created todos', (done) => {
         request(app)
             .get('/todos')
             .expect(200)
             .expect((res) => {
-                expect(res.body.todos.length).toBe(2);
+                expect(res.body.result.length).toBe(2);
             })
             .end(done);
     })
 });
 
-describe('Get /todos/:id', () => {
+describe('GET /todos/:id', () => {
     it('should return todo doc', (done) => {
         request(app)
             .get(`/todos/${todos[0]._id}`)
@@ -110,4 +110,43 @@ describe('Get /todos/:id', () => {
             .expect(400)
             .end(done);
     })
+});
+
+describe('DELETE /todos/:id', () => {
+    it('should delete the selected todo', (done) => {
+        request(app)
+            .delete(`/todos/${todos[0]._id}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.result._id).toBe(todos[0]._id.toHexString());
+            })
+            .end((err, res) => {
+                if(err) {
+                    return done(err);
+                }
+
+                Todo.findById(todos[0]._id).then((result) => {
+                    expect(result).toNotExist();
+                    done();
+                }).catch((e) => {
+                    done(e);
+                })
+            });
+    });
+
+    it('should return 404 when trying to remove the todo that is not found', (done) => {
+        let fakeId = new ObjectID()
+        request(app)
+            .delete(`/todos/${fakeId}`)
+            .expect(404)
+            .end(done);
+    });
+
+    it('should return 400 when trying to remove a non object id', (done) => {
+        let wrongId = 123;
+        request(app)
+            .delete(`/todos/${wrongId}`)
+            .expect(400)
+            .end(done);
+    });
 });

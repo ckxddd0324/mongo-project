@@ -18,18 +18,16 @@ app.post('/todos', (req, res) => {
         text: req.body.text
     });
 
-    todo.save().then((doc) => {
-        res.send(doc);
+    todo.save().then((result) => {
+        res.send({ result });
     }, (e) => {
         res.status(400).send(e);
     })
 });
 
 app.get('/todos', (req, res) => {
-    Todo.find().then((todos) => {
-        res.send({
-            todos
-        });
+    Todo.find().then((result) => {
+        res.send({result});
     }, (e) => {
         res.status(400).send(e);
     })
