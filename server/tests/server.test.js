@@ -10,7 +10,9 @@ const todos = [{
     text: 'First test todo'
 },{
     _id: new ObjectID(),
-    text: 'Second test todo'
+    text: 'Second test todo',
+    completed: true,
+    completed_at: 333
 }];
 
 
@@ -28,9 +30,7 @@ describe('POST /todos', () => {
 
         request(app)
             .post('/todos')
-            .send({
-                text
-            })
+            .send({ text })
             .expect(200)
             .expect((res) => {
                 expect(res.body.result.text).toBe(text);
@@ -53,9 +53,7 @@ describe('POST /todos', () => {
     it('should not create todo with invalid body data', (done) => {
         request(app)
             .post('/todos')
-            .send({
-
-            })
+            .send({})
             .expect(400)
             .end((err, res) => {
                 if(err){
@@ -147,6 +145,45 @@ describe('DELETE /todos/:id', () => {
         request(app)
             .delete(`/todos/${wrongId}`)
             .expect(400)
+            .end(done);
+    });
+});
+
+describe('PATCH /todos/:id', () => {
+    it('should update the todo', (done) => {
+        //grab id of first item
+        //patch request and some data- update the text and set completed to true
+        //200
+        //text is changed, completed is true
+        //completed_at is a number
+        let updateData = {text: "Test update process", completed: true};
+        request(app)
+            .patch(`/todos/${todos[0]._id}`)
+            .send(updateData)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.result.text).toBe(updateData.text);
+                expect(res.body.result.completed).toBe(true);
+                expect(res.body.result.completed_at).toBeA('number');
+            })
+            .end(done);
+    });
+
+    it('should clear completed_at when todo is not completed', (done) => {
+        //grab id of second todo item
+        //update text, set completed to false
+        //200
+        //res.body is update- text is change/ completed is false, completed_at is null(toNotExist)
+        let updateData = {completed: false};
+        request(app)
+            .patch(`/todos/${todos[1]._id}`)
+            .send(updateData)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.result.text).toBe(todos[1].text);
+                expect(res.body.result.completed).toBe(false);
+                expect(res.body.result.completed_at).toNotExist();
+            })
             .end(done);
     });
 });

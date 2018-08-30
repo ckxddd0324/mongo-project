@@ -14,7 +14,6 @@ app.use(bodyParser.json());
 //url and callback
 //post todos
 app.post('/todos', (req, res) => {
-    console.log(req.body);
     let todo = new Todo({
         text: req.body.text
     });
@@ -22,7 +21,7 @@ app.post('/todos', (req, res) => {
     todo.save().then((result) => {
         res.send({ result });
     }, (e) => {
-        res.status(400).send(e);
+        res.status(400).send();
     })
 });
 
@@ -98,14 +97,13 @@ app.patch('/todos/:id', (req, res) => {
     }
 
     Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((result) => {
-        console.log(body);
         if(!result) {
             return res.status(404).send();
         }
 
         res.send({ result });
     }).catch((e) => {
-        res.status(400).send(e);
+        res.status(400).send();
     })
 
 })
