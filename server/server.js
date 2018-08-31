@@ -7,6 +7,7 @@ const { ObjectID } = require('mongodb');
 const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
+const { authenicate } =require('./middleware/authenticate');
 
 const app = express();
 const port = process.env.PORT;
@@ -124,6 +125,11 @@ app.post('/users', (req, res) => {
     }).catch((e) => {
         res.status(400).send(e);
     })
+})
+
+app.get('/users/me', authenicate, (req, res) => {
+    //fetch x-auth from request header
+    res.send(req.user);
 })
 
 app.listen(port, () => {
