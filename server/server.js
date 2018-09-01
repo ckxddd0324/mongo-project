@@ -3,6 +3,7 @@ const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
+const bcrpyt = require('bcryptjs');
 
 const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
@@ -134,6 +135,27 @@ app.get('/users/me', authenicate, (req, res) => {
 
 app.listen(port, () => {
     console.log(`Started on port ${port}`);
+});
+
+//POST /users/login {email, password}
+app.post('/users/login', (req, res) => {
+    let userLogin = _.pick(req.body, ['email', 'password']);
+
+    User.findByCredential(userLogin.email, userLogin.password).then((user) => {
+        return user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user);
+        })
+    }).catch((e) => {
+        res.status(400).send();
+    });
+});
+
+app.delete('/users/me/token', authenicate, (req, res) => {
+    req.user.removeToken(req.token).then(() => {
+        res.send()
+    }, () => {
+        res.status(400).send();
+    })
 });
 
 module.exports = { 
